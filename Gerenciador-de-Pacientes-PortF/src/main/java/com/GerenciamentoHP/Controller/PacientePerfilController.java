@@ -1,7 +1,6 @@
 package com.GerenciamentoHP.Controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,8 @@ import com.GerenciamentoHP.DTO.PacientePerfilDto;
 import com.GerenciamentoHP.Model.PacientePerfil;
 import com.GerenciamentoHP.Service.PacientePerfilService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/pacientes-perfil")
 public class PacientePerfilController {
@@ -25,11 +26,9 @@ public class PacientePerfilController {
     private PacientePerfilService pacientePerfilService;
 
     @PostMapping("/cadastro")
-    public ResponseEntity<PacientePerfil> criarPaciente(@RequestBody PacientePerfilDto pacientePerfilDto) {
-        PacientePerfil pacientePerfil = pacientePerfilDto.mapearPacientePerfil();
-        PacientePerfil pacienteSalvo = pacientePerfilService.salvarPacientePerfil(pacientePerfil);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pacienteSalvo);
-
+    public ResponseEntity<PacientePerfil> cadastrarPaciente(@RequestBody PacientePerfilDto pacienteDto) {
+        PacientePerfil pacientePerfil = pacientePerfilService.salvarPerfil(pacienteDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(pacientePerfil);
     }
 
     @GetMapping
@@ -37,23 +36,15 @@ public class PacientePerfilController {
         return pacientePerfilService.getAll();
     }
 
-    @GetMapping("/{atendimento}")
-    public ResponseEntity<PacientePerfil> findByAtendimento(@PathVariable Long atendimento) {
-        Optional<PacientePerfil> paciente = pacientePerfilService.findByAtendimento(atendimento);
-        return paciente.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
-
-    @GetMapping("/rg/{rg}")
-    public ResponseEntity<PacientePerfil> findByRg(@PathVariable Integer rg) {
-        Optional<PacientePerfil> paciente = pacientePerfilService.findByRg(rg);
-        return paciente.map(resposta -> ResponseEntity.ok(resposta)).orElse(ResponseEntity.notFound().build());
-
-    }
-
     @PutMapping("/{atendimento}")
-    public ResponseEntity<PacientePerfil> atualizarPaciente(@PathVariable Long atendimento,@RequestBody PacientePerfilDto pacientePerfilDto){
-        PacientePerfil pacienteAtualizado = pacientePerfilService.atualizarPaciente(atendimento, pacientePerfilDto);
-        return ResponseEntity.ok(pacienteAtualizado);
-    }
+    public ResponseEntity<PacientePerfil> atualizarPacientePerfil(@PathVariable Long atendimento,
+            @Valid @RequestBody PacientePerfil pacientePerfil) {
+        if (atendimento == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
 
+        pacientePerfil.setAtendimento(atendimento);
+
+        return pacientePerfilService.atualizarPacientePerfil(pacientePerfil);
+    }
 }

@@ -13,11 +13,9 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -35,7 +33,7 @@ public class PacientePerfil {
 
     private Integer rg;
 
-    @NotNull
+    
     private LocalDate dataNascimento;
 
     private String plano;
@@ -50,8 +48,8 @@ public class PacientePerfil {
     @JsonIgnoreProperties("pacientePerfil")
     private List<FichaPaciente> fichaPaciente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("pacientePerfil")
-    private Setor setor;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "pacientePerfil", cascade = CascadeType.REMOVE)
+	@JsonIgnoreProperties("pacientePerfil")
+	private List<Setor> setor;
 
 }
